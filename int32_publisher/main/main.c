@@ -31,9 +31,8 @@
 #include "lwip/netdb.h"
 
 #include "mqtt_client.h"
-
-#include "hc-sr04_driver.h"
-#include "hc-sr04_driver.c"
+#include "ultrasonic.h"
+#include "ultrasonic.c"
 
 #include <unistd.h>
 #include <uros_network_interfaces.h>
@@ -50,6 +49,7 @@
 #include <math.h>
 #include <geometry_msgs/msg/twist.h>
 #include <driver/ledc.h>
+#include "l293_driver.c"
 
 
 //static const char *TAG = "main_app";
@@ -98,65 +98,6 @@ geometry_msgs__msg__Twist msg;
 float fmap(float val, float in_min, float in_max, float out_min, float out_max);
 
 
-int hcsr_fwd()
-{
-    
-    float forward_distance = 0.0;
-
-    //double CALIB_DISTANCE = 0.0;
-
-    
-
-    // Caliberate the sensor first
-    //CALIB_DISTANCE = hcsr_caliberate_sensor();
-    //ESP_LOGI(TAG,"going to get distance"); 
-    
-    forward_distance = (int)fdw_hcsr_get_distance_in();
-    //printf("distance is: %d", current_distance);
-    ESP_LOGI(TAG,"Forward Distance: %f",forward_distance);    
-    
-    return forward_distance;
-	}
-
-int hcsr_left()
-{
-    
-    float left_distance = 0.0;
-
-    //double CALIB_DISTANCE = 0.0;
-
-    
-
-    // Caliberate the sensor first
-    //CALIB_DISTANCE = hcsr_caliberate_sensor();
-    //ESP_LOGI(TAG,"going to get distance"); 
-    
-    left_distance = (int)left_hcsr_get_distance_in();
-    //printf("distance is: %d", current_distance);
-    ESP_LOGI(TAG,"Left Distance: %f",left_distance);    
-    
-    return left_distance;
-	}
-
-int hcsr_right()
-{
-    
-    float right_distance = 0.0;
-
-    //double CALIB_DISTANCE = 0.0;
-
-    
-
-    // Caliberate the sensor first
-    //CALIB_DISTANCE = hcsr_caliberate_sensor();
-    //ESP_LOGI(TAG,"going to get distance"); 
-    
-    right_distance = (int)right_hcsr_get_distance_in();
-    //printf("distance is: %d", current_distance);
-    ESP_LOGI(TAG,"Right Distance: %f",right_distance);    
-    
-    return right_distance;
-	}
 
 
 void subscription_callback(const void * msgin){
@@ -172,14 +113,14 @@ void timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
 	if (timer != NULL) {
 
-    	LedStateMsg.data = gpio_get_level(LED_BUILTIN);
-		RCSOFTCHECK(rcl_publish(&led_state_publisher, &LedStateMsg, NULL));
-		FwdDistanceMsg.data = hcsr_fwd();
+    	//LedStateMsg.data = gpio_get_level(LED_BUILTIN);
+		//RCSOFTCHECK(rcl_publish(&led_state_publisher, &LedStateMsg, NULL));
+		FwdDistanceMsg.data = 100*distance_FWD();
 		RCSOFTCHECK(rcl_publish(&fwd_distance_publisher, &FwdDistanceMsg, NULL));
-		LeftDistanceMsg.data = hcsr_left();
+		LeftDistanceMsg.data = 100*distance_LEFT();
 		RCSOFTCHECK(rcl_publish(&left_distance_publisher, &LeftDistanceMsg, NULL));
-		//RightDistanceMsg.data = hcsr_fwd();
-		//RCSOFTCHECK(rcl_publish(&right_distance_publisher, &RightDistanceMsg, NULL));
+		RightDistanceMsg.data = 100*distance_RIGHT();
+		RCSOFTCHECK(rcl_publish(&right_distance_publisher, &RightDistanceMsg, NULL));
 		printf("send ok\n");
 		//LedStateMsg.data++;
 	}
@@ -247,11 +188,11 @@ void micro_ros_task(void * arg)
 	RCCHECK(rclc_node_init_default(&node, "blink_on_input", "", &support));
 
 	// create publisher
-	RCCHECK(rclc_publisher_init_default(
+	/*RCCHECK(rclc_publisher_init_default(
 		&led_state_publisher,
 		&node,
 		ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-		"led_state"));
+		"led_state"));*/
 
     // create led_state publisher
 	RCCHECK(rclc_publisher_init_default(
@@ -260,11 +201,11 @@ void micro_ros_task(void * arg)
 		ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
 		"fwd_distance"));
 
-      /*// create led_state publisher
+      // create led_state publisher
 	RCCHECK(rclc_publisher_init_default(
 		&left_distance_publisher,
 		&node,
-		ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32), "left_distance"));*/
+		ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32), "left_distance"));
 	
 		// create subscriber 
 	RCCHECK(rclc_subscription_init_default(
@@ -351,7 +292,6 @@ hcsr_setup_pins();
             CONFIG_MICRO_ROS_APP_TASK_PRIO, 
             NULL); 
 }
-
 
 
 

@@ -20,7 +20,6 @@
 #include "esp_err.h"
 #include "esp_log.h"
 
-#include "hc-sr04_driver.h"
 #include <driver/ledc.h>
 
 #ifdef ESP_PLATFORM
@@ -29,12 +28,12 @@
 #endif
 
 
-#define FWD_HCSR_TRIG_GPIO_NUM GPIO_NUM_23
+/*#define FWD_HCSR_TRIG_GPIO_NUM GPIO_NUM_23
 #define FWD_HCSR_ECHO_GPIO_NUM GPIO_NUM_22
 #define LEFT_HCSR_TRIG_GPIO_NUM GPIO_NUM_14
 #define LEFT_HCSR_ECHO_GPIO_NUM GPIO_NUM_25
 #define RIGHT_HCSR_TRIG_GPIO_NUM GPIO_NUM_33
-#define RIGHT_HCSR_ECHO_GPIO_NUM GPIO_NUM_33
+#define RIGHT_HCSR_ECHO_GPIO_NUM GPIO_NUM_33*/
 #define LED_BUILTIN 2
 #define HCSR_HIGH 1
 #define HCSR_LOW 0
@@ -44,10 +43,10 @@ static const char *TAG = "hc-sr04_driver";
 
 // PINS
 //#define LED_BUILTIN 33
-#define PIN_LEFT_FORWARD 12
-#define PIN_LEFT_BACKWARD 13
-#define PIN_RIGHT_FORWARD 26
-#define PIN_RIGHT_BACKWARD 27
+#define PIN_LEFT_FORWARD 26
+#define PIN_LEFT_BACKWARD 27
+#define PIN_RIGHT_FORWARD 12
+#define PIN_RIGHT_BACKWARD 14
 
 // PWM Channels (Reserve channel 0 and 1 for camera)
 #define PWM_LEFT_FORWARD LEDC_CHANNEL_2
@@ -61,10 +60,10 @@ static const char *TAG = "hc-sr04_driver";
 #define PWM_TIMER LEDC_TIMER_1
 #define PWM_MODE LEDC_HIGH_SPEED_MODE
 
-// Function Prototypes
-int hcsr_setup_pins(); //Setup all the pins and such to get the GPIO ready to be used
+/*// Function Prototypes
+int setup_ledc(); //Setup all the pins and such to get the GPIO ready to be used
 esp_err_t hcsr_send_trig_signal(); //Send a 10uS trig signal HIGH to the sensor
-int hcsr_echo_pulse_read(); //Read the returned pulse and update a variable
+int hcsr_echo_pulse_read(); //Read the returned pulse and update a variable*/
 
 
 
@@ -74,8 +73,8 @@ void cmd_vel_callback(const void *msgin);
 
 int hcsr_setup_pins()
 {
-    ESP_LOGI(TAG,"Setting up GPIO Pins");
-    //Config the Trig Pin
+    ESP_LOGI(TAG,"Setting up ledc");
+   /* //Config the Trig Pin
     gpio_pad_select_gpio(FWD_HCSR_TRIG_GPIO_NUM);
     gpio_set_direction(FWD_HCSR_TRIG_GPIO_NUM,GPIO_MODE_OUTPUT);
 
@@ -105,7 +104,7 @@ int hcsr_setup_pins()
     //gpio_set_direction(PIN_LEFT_FORWARD, GPIO_MODE_OUTPUT);
     //gpio_set_direction(PIN_LEFT_BACKWARD, GPIO_MODE_OUTPUT);
 
-    //ESP_LOGI(TAG,"GPIO Pins Setup Completed");
+    //ESP_LOGI(TAG,"GPIO Pins Setup Completed");*/
 
 
     //gpio_reset_pin(LED_BUILTIN);
@@ -162,12 +161,12 @@ int hcsr_setup_pins()
 
     
 
-    ESP_LOGI(TAG,"GPIO Pins Setup Completed NOW!");
+    ESP_LOGI(TAG,"ledc Setup Completed NOW!");
 
     return 0;
 }
 
-esp_err_t fwd_hcsr_send_trig_signal()
+/*esp_err_t fwd_hcsr_send_trig_signal()
 {
     //ESP_LOGI(TAG,"Sending Trig Signal to HCSR04 Sensor");
     esp_err_t fwd_err;
@@ -436,7 +435,7 @@ double right_hcsr_get_distance_in()
     right_distance = ((double)pulse_readout / 148.0) * 10;
     //ESP_LOGI(TAG,"Distance in Inches: %f",distance);
     return right_distance;
-}
+}*/
 
  
 /*double hcsr_caliberate_sensor()
@@ -456,3 +455,47 @@ double right_hcsr_get_distance_in()
 
     return distance / 10.0;
 }*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*          test codes from this poit
+
+
+
+
+
+
+
+
+
+test codes .............................................*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
