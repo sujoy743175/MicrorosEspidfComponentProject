@@ -1,4 +1,5 @@
 build/
-sdkconfig/
-sdkconfig.old/
+sdkconfig
 esp-idf-lib/
+sdkconfig.old
+sdkconfig.defaults

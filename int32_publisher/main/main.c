@@ -121,7 +121,7 @@ void timer_callback(rcl_timer_t *timer, int64_t last_call_time) {
 		RCSOFTCHECK(rcl_publish(&left_distance_publisher, &LeftDistanceMsg, NULL));
 		RightDistanceMsg.data = 100*distance_RIGHT();
 		RCSOFTCHECK(rcl_publish(&right_distance_publisher, &RightDistanceMsg, NULL));
-		printf("send ok\n");
+		printf("ultrasound data sent\n");
 		//LedStateMsg.data++;
 	}
 
@@ -206,6 +206,12 @@ void micro_ros_task(void * arg)
 		&left_distance_publisher,
 		&node,
 		ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32), "left_distance"));
+
+    /*// create led_state publisher
+	RCCHECK(rclc_publisher_init_default(
+		&right_distance_publisher,
+		&node,
+		ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32), "right_distance"));*/
 	
 		// create subscriber 
 	RCCHECK(rclc_subscription_init_default(
@@ -224,7 +230,7 @@ void micro_ros_task(void * arg)
 
 	// create timer,
 	rcl_timer_t timer;
-	const unsigned int timer_timeout = 100;
+	const unsigned int timer_timeout = 600;
 	RCCHECK(rclc_timer_init_default(
 		&timer,
 		&support,
@@ -242,7 +248,7 @@ void micro_ros_task(void * arg)
 	//msg.data = 0;
 
 	while(1){
-		rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+		rclc_executor_spin_some(&executor, RCL_MS_TO_NS(10));
 		usleep(10000);
 	}
 
@@ -250,6 +256,7 @@ void micro_ros_task(void * arg)
 	RCCHECK(rcl_publisher_fini(&led_state_publisher, &node));
     RCCHECK(rcl_publisher_fini(&fwd_distance_publisher, &node));
     RCCHECK(rcl_publisher_fini(&left_distance_publisher, &node));
+	RCCHECK(rcl_publisher_fini(&right_distance_publisher, &node));
 	RCCHECK(rcl_subscription_fini(&led_input_subscriber, &node));
 	RCCHECK(rcl_subscription_fini(&subscriber, &node));
 	RCCHECK(rcl_node_fini(&node));
@@ -267,7 +274,7 @@ float fmap(float val, float in_min, float in_max, float out_min, float out_max);
 // We don't really need the callback, because msg is set anyway
 void cmd_vel_callback(const void *msgin) {
 //    const geometry_msgs__msg__Twist *msg = (const geometry_msgs__msg__Twist *) msgin;
-//    printf("Message received: %f %f\n", msg->linear.x, msg->angular.z);
+    printf("Message received.......................................: %f %f\n", msg.linear.x, msg.angular.z);
 }
 
 // Each frame, check msg data and set PWM channels accordingly
@@ -276,7 +283,6 @@ void cmd_vel_callback(const void *msgin) {
 
 void app_main(void)
 {   
-
 hcsr_setup_pins();
 
 #ifdef UCLIENT_PROFILE_UDP
@@ -292,7 +298,6 @@ hcsr_setup_pins();
             CONFIG_MICRO_ROS_APP_TASK_PRIO, 
             NULL); 
 }
-
 
 
 
